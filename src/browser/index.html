@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Pi Timer</title>
+    <title>Pi Timer Control</title>
     <style>
       *,
       *::before,
@@ -57,14 +57,36 @@
         display: flex;
         justify-content: space-around;
       }
-      #buttons > * > * {
-        border: 1px solid gray;
+      #buttons > * > *,
+      .button {
+        border: 2px solid #999;
         border-radius: 1em;
         background-color: #555;
         color: white;
+        fill: white;
+        stroke: white;
         font-size: 0.75rem;
         padding: 0.5em;
         margin: 0.2em;
+        width: min-content;
+        height: min-content;
+        cursor: pointer;
+        user-select: none;
+        touch-action: manipulation;
+        white-space: nowrap;
+      }
+      #start,
+      #pause,
+      #reset {
+        line-height: 0;
+      }
+      #buttons > * > *.inactive,
+      .button.inactive {
+        color: #777 !important;
+        fill: #777 !important;
+        stroke: #777 !important;
+        border-color: #555;
+        background-color: #444;
       }
       #timer-start table,
       #timer-current table {
@@ -81,9 +103,58 @@
           /* align-items: flex-start; */
         }
       }
+
+      #message-modal {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 1;
+        color: white;
+        justify-content: center;
+        align-items: center;
+      }
+      #message-modal.show {
+        display: flex;
+      }
+      #message-modal > div {
+        background-color: #333;
+        padding: 0.5em;
+        border: 1px solid white;
+        border-radius: 1em;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5em;
+      }
+      #message {
+        border: 2px solid gray;
+        width: 12rem;
+        height: 7.33rem;
+        background-color: black;
+        color: white;
+        cursor: text;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
     </style>
   </head>
   <body>
+    <div id="message-modal">
+      <div>
+        <div id="flashing" style="color: red" class="button inactive">
+          flashing
+        </div>
+        <div id="send" class="button inactive">send</div>
+        <div id="size-plus" class="button">size+</div>
+        <div id="size-minus" class="button">size-</div>
+        <div id="message" contenteditable="true"></div>
+      </div>
+    </div>
     <div id="timer-start">
       <div>Timer Start</div>
       <table>
@@ -170,16 +241,57 @@
     </div>
     <div id="buttons">
       <div>
-        <div id="start">Start</div>
-        <div id="pause">Pause</div>
-        <div id="reset">Reset</div>
+        <div id="start">
+          <svg
+            viewBox="0 0 2 2"
+            height="1.5em"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <polygon points="0,2 2,1 0,0" stroke="none"/>
+          </svg>
+        </div>
+        <div id="pause" class="inactive">
+          <svg
+            viewBox="0 0 2 2"
+            height="1.5em"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect x="0.2" y="0" width="0.6" height="2" />
+            <rect x="1.2" y="0" width="0.6" height="2" />
+          </svg>
+        </div>
+        <div id="reset" class="inactive">
+          <svg
+            viewBox="0 0 2 2"
+            height="1.5em"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M0.1 1 A0.9 0.9 0 1 0 0.364 0.364"
+              fill="none"
+              stroke-width="0.2"
+            />
+            <path
+              d="M0.364 0.114l0 0.25l0.25 0"
+              fill="none"
+              stroke-width="0.2"
+              stroke-linecap="round"
+            />
+          </svg>
+        </div>
       </div>
       <div>
-        <div id="plus-minute">+min</div>
-        <div id="minus-minute">-min</div>
+        <div id="plus-minute" class="inactive">+min</div>
+        <div id="minus-minute" class="inactive">−min</div>
+      </div>
+      <div>
+        <div id="summon-message-modal">Send Message</div>
       </div>
     </div>
-    <iframe src="display.html" style="width: 96vw; height: 54vw; pointer-events: none;"></iframe>
+    <iframe
+      src="display.html"
+      style="width: 96vw; height: 54vw; pointer-events: none"
+    ></iframe>
   </body>
   <script type="module" src="index.js"></script>
 </html>

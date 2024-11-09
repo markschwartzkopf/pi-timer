@@ -32,9 +32,9 @@ let sendDataFunction: (
 };
 
 export function setSendDataFunction(
-	func: (type: 'props' | 'settings' | 'state' | 'text') => void
+  func: (type: 'props' | 'settings' | 'state' | 'text') => void
 ) {
-	sendDataFunction = func;
+  sendDataFunction = func;
 }
 
 export function initializeData() {
@@ -91,4 +91,22 @@ export function setStart(
   }
   fs.promises.writeFile('./data/props.json', JSON.stringify(props));
   sendData('props');
+}
+
+export function setSize(
+  type: 'timeSize' | 'messageSize',
+  newSize: number | 'plus' | 'minus'
+) {
+	console.log('setting size');
+  if (newSize === 'plus') {
+    settings[type] += 1;
+  } else if (newSize === 'minus') {
+    settings[type] -= 1;
+  } else {
+    settings[type] = newSize;
+  }
+	fs.promises.writeFile('./data/settings.json', JSON.stringify(settings)).catch((err) => {
+		blLog.error('Error writing settings file', err);
+	});
+	sendData('settings');
 }

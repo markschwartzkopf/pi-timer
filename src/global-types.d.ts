@@ -7,6 +7,7 @@ export type ServerMessage = {
   state?: TimerState;
   settings?: TimerSettings;
   ipAddress?: string;
+  message?: { message: string; flashing: boolean };
 };
 export type TimerProps = {
   startTime: number;
@@ -52,6 +53,17 @@ export type ClientMessage =
     }
   | {
       type: 'minusMinute';
+    }
+  | {
+      type: 'messageSizePlus';
+    }
+  | {
+      type: 'messageSizeMinus';
+    }
+  | {
+      type: 'sendMessage';
+      message: string;
+      flashing: boolean;
     };
 
 /* | {

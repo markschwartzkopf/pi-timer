@@ -1,8 +1,4 @@
-import {
-  ClientMessage,
-  ErrorData,
-  ServerMessage,
-} from '../global-types';
+import { ClientMessage, ErrorData, ServerMessage } from '../global-types';
 
 document.getElementById('minute-up')!.onclick = () => {
   sendMsg({ type: 'minuteUp' });
@@ -16,13 +12,16 @@ document.getElementById('second-up')!.onclick = () => {
 document.getElementById('second-down')!.onclick = () => {
   sendMsg({ type: 'secondDown' });
 };
-document.getElementById('start')!.onclick = () => {
+const startButton = document.getElementById('start') as HTMLDivElement;
+startButton.onclick = () => {
   sendMsg({ type: 'start' });
 };
-document.getElementById('pause')!.onclick = () => {
+const pauseButton = document.getElementById('pause') as HTMLDivElement;
+pauseButton.onclick = () => {
   sendMsg({ type: 'pause' });
 };
-document.getElementById('reset')!.onclick = () => {
+const resetButton = document.getElementById('reset') as HTMLDivElement;
+resetButton.onclick = () => {
   sendMsg({ type: 'reset' });
 };
 document.getElementById('plus-minute')!.onclick = () => {
@@ -30,6 +29,76 @@ document.getElementById('plus-minute')!.onclick = () => {
 };
 document.getElementById('minus-minute')!.onclick = () => {
   sendMsg({ type: 'minusMinute' });
+};
+const messageModal = document.getElementById('message-modal') as HTMLDivElement;
+const message = document.getElementById('message') as HTMLDivElement;
+let messageFlash = false;
+setInterval(() => {
+  if (messageFlash) {
+    const oldColor = message.style.color;
+    message.style.color = oldColor === 'black' ? 'red' : 'black';
+    message.style.backgroundColor = oldColor === 'black' ? 'black' : 'red';
+  }
+}, 1000);
+const sizePlus = document.getElementById('size-plus') as HTMLDivElement;
+const sizeMinus = document.getElementById('size-minus') as HTMLDivElement;
+sizePlus.onclick = () => {
+  sendMsg({ type: 'messageSizePlus' });
+};
+sizeMinus.onclick = () => {
+  sendMsg({ type: 'messageSizeMinus' });
+};
+const flashing = document.getElementById('flashing') as HTMLDivElement;
+flashing.onclick = () => {
+  messageFlash = !messageFlash;
+  if (messageFlash) {
+    flashing.classList.remove('inactive');
+  } else {
+    flashing.classList.add('inactive');
+    message.style.color = 'white';
+    message.style.backgroundColor = 'black';
+  }
+};
+const sendButton = document.getElementById('send') as HTMLDivElement;
+sendButton.onclick = () => {
+  if (sendButton.classList.contains('inactive')) return;
+  sendMsg({
+    type: 'sendMessage',
+    message: message.innerHTML,
+    flashing: messageFlash,
+  });
+  messageModal.classList.remove('show');
+};
+message.oninput = () => {
+  if (message.innerHTML) {
+    sendButton.classList.remove('inactive');
+  } else {
+    sendButton.classList.add('inactive');
+  }
+};
+let messageActive = false;
+const summonOrBanishMessage = document.getElementById(
+  'summon-message-modal'
+) as HTMLDivElement;
+summonOrBanishMessage.onclick = () => {
+  if (messageActive) {
+    sendMsg({ type: 'sendMessage', message: '', flashing: false });
+    return;
+  }
+  //reset message modal
+  messageFlash = false;
+  flashing.classList.add('inactive');  
+  sendButton.classList.add('inactive');
+  message.innerHTML = '';
+  message.style.color = 'white';
+  message.style.backgroundColor = 'black';
+  messageModal.classList.add('show');
+  message.focus();
+};
+messageModal.onclick = (e) => {
+  if (e.target === messageModal) {
+    messageModal.classList.remove('show');
+  }
 };
 
 const server_address = location.origin.replace(/^http/, 'ws');
@@ -54,10 +123,46 @@ ws.onmessage = (msg) => {
     try {
       const parsedData = JSON.parse(msg.data) as ServerMessage;
       if (parsedData.props) {
-        updateStart(parsedData.props.startTime);        
+        updateStart(parsedData.props.startTime);
       }
       if (parsedData.text) {
         updateTime(parsedData.text.time);
+        const message = parsedData.text.message;
+        messageActive = !!message;
+        if (messageActive) {
+          summonOrBanishMessage.innerHTML = 'Remove Message';
+        } else {
+          summonOrBanishMessage.innerHTML = 'Send Message';
+        }
+      }
+      if (parsedData.settings) {
+        document.getElementById(
+          'message'
+        )!.style.fontSize = `calc((${parsedData.settings.messageSize} * 7.33rem)/100)`;
+      }
+      if (parsedData.state) {
+        switch (parsedData.state) {
+          case 'running':
+            startButton.classList.add('inactive');
+            pauseButton.classList.remove('inactive');
+            resetButton.classList.remove('inactive');
+            break;
+          case 'paused':
+            startButton.classList.remove('inactive');
+            pauseButton.classList.add('inactive');
+            resetButton.classList.remove('inactive');
+            break;
+          case 'finished':
+            startButton.classList.remove('inactive');
+            pauseButton.classList.add('inactive');
+            resetButton.classList.remove('inactive');
+            break;
+          case 'ready':
+            startButton.classList.remove('inactive');
+            pauseButton.classList.add('inactive');
+            resetButton.classList.add('inactive');
+            break;
+        }
       }
     } catch (error) {
       blError('Error parsing JSON data', { data: error });

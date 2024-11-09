@@ -15,6 +15,7 @@ import {
   getSettings,
   sendData,
   setSendDataFunction,
+  setSize,
   setStart,
 } from './data';
 //import {} from './data';
@@ -145,6 +146,18 @@ const httpServer = http
               case 'secondDown':
                 setStart('seconds', 'down');
                 break;
+              case 'messageSizePlus':
+                setSize('messageSize', 'plus');
+                break;
+              case 'messageSizeMinus':
+                setSize('messageSize', 'minus');
+                break;
+                case 'sendMessage':
+                  {
+                    message = { message: msg.message, state: msg.flashing ? 'flashing' : 'normal' };
+                    sendData('text');
+                  }
+                  break;
               case 'start':
                 {
                   if (state === 'finished') {
@@ -194,6 +207,7 @@ const httpServer = http
                   startTime = Date.now();
                   state = 'finished';
                   sendData('text');
+                  sendData('state');
                 }
                 break;
               default:
@@ -231,6 +245,7 @@ setInterval(() => {
       if (time <= 0) {
         time = 0;
         state = 'finished';
+        sendData('state');
       }
       sendData('text');
     }
