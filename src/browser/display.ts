@@ -17,6 +17,30 @@ const timeDiv = document.getElementById('time') as HTMLDivElement;
 
 const server_address = location.origin.replace(/^http/, 'ws');
 
+let cursorTimeout: NodeJS.Timeout | null = null;
+
+function hideCursor() {
+  document.body.style.cursor = 'none';
+  document.body.parentElement!.style.cursor = 'none';
+  document.getElementById('ip-address')!.style.display = 'none';
+}
+
+setTimeout(() => {
+  hideCursor();
+}, 100);
+
+document.addEventListener('mousemove', () => {
+  if (cursorTimeout) {
+    clearInterval(cursorTimeout);
+  }
+  cursorTimeout = setTimeout(() => {
+    hideCursor();
+  }, 5000);
+  document.body.style.cursor = 'default';
+  document.body.parentElement!.style.cursor = 'default';
+  document.getElementById('ip-address')!.style.display = 'unset';
+});
+
 const ws = new WebSocket(server_address);
 ws.binaryType = 'arraybuffer';
 
@@ -37,6 +61,9 @@ ws.onmessage = (msg) => {
       }
       if (parsedData.text) {
         updateScreen(parsedData.text);
+      }
+      if (parsedData.ipAddress) {
+        document.getElementById('ip-address')!.innerHTML = parsedData.ipAddress;
       }
     } catch (error) {
       blError('Error parsing JSON data', { data: error });

@@ -1,5 +1,5 @@
-Timer display IP address when cursor moves
-Verify index iframe does not display IP address for no reason
-Develop pm2 instructions
 implement message functionality
+Develop pm2 instructions
+get on port 80
+make dev still possible on 9099
 favicon

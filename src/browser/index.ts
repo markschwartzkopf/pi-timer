@@ -58,7 +58,6 @@ ws.onmessage = (msg) => {
       }
       if (parsedData.text) {
         updateTime(parsedData.text.time);
-        console.log(parsedData.text);
       }
     } catch (error) {
       blError('Error parsing JSON data', { data: error });
