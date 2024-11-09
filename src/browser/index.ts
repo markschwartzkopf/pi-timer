@@ -24,10 +24,12 @@ const resetButton = document.getElementById('reset') as HTMLDivElement;
 resetButton.onclick = () => {
   sendMsg({ type: 'reset' });
 };
-document.getElementById('plus-minute')!.onclick = () => {
+const plusMinute = document.getElementById('plus-minute') as HTMLDivElement;
+plusMinute.onclick = () => {
   sendMsg({ type: 'plusMinute' });
 };
-document.getElementById('minus-minute')!.onclick = () => {
+const minusMinute = document.getElementById('minus-minute') as HTMLDivElement;
+minusMinute.onclick = () => {
   sendMsg({ type: 'minusMinute' });
 };
 const messageModal = document.getElementById('message-modal') as HTMLDivElement;
@@ -87,7 +89,7 @@ summonOrBanishMessage.onclick = () => {
   }
   //reset message modal
   messageFlash = false;
-  flashing.classList.add('inactive');  
+  flashing.classList.add('inactive');
   sendButton.classList.add('inactive');
   message.innerHTML = '';
   message.style.color = 'white';
@@ -146,21 +148,29 @@ ws.onmessage = (msg) => {
             startButton.classList.add('inactive');
             pauseButton.classList.remove('inactive');
             resetButton.classList.remove('inactive');
+            plusMinute.classList.remove('inactive');
+            minusMinute.classList.remove('inactive');
             break;
           case 'paused':
             startButton.classList.remove('inactive');
             pauseButton.classList.add('inactive');
             resetButton.classList.remove('inactive');
+            plusMinute.classList.remove('inactive');
+            minusMinute.classList.remove('inactive');
             break;
           case 'finished':
             startButton.classList.remove('inactive');
             pauseButton.classList.add('inactive');
             resetButton.classList.remove('inactive');
+            plusMinute.classList.add('inactive');
+            minusMinute.classList.add('inactive');
             break;
           case 'ready':
             startButton.classList.remove('inactive');
             pauseButton.classList.add('inactive');
             resetButton.classList.add('inactive');
+            plusMinute.classList.add('inactive');
+            minusMinute.classList.add('inactive');
             break;
         }
       }

@@ -97,7 +97,6 @@ export function setSize(
   type: 'timeSize' | 'messageSize',
   newSize: number | 'plus' | 'minus'
 ) {
-	console.log('setting size');
   if (newSize === 'plus') {
     settings[type] += 1;
   } else if (newSize === 'minus') {
@@ -105,6 +104,14 @@ export function setSize(
   } else {
     settings[type] = newSize;
   }
+	fs.promises.writeFile('./data/settings.json', JSON.stringify(settings)).catch((err) => {
+		blLog.error('Error writing settings file', err);
+	});
+	sendData('settings');
+}
+
+export function setColor(color: 'yellow' | 'red' | 'flash', newColor: number | null) {
+	settings[color] = newColor;
 	fs.promises.writeFile('./data/settings.json', JSON.stringify(settings)).catch((err) => {
 		blLog.error('Error writing settings file', err);
 	});

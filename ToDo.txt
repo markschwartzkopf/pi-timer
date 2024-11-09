@@ -1,4 +1,1 @@
-
 Develop pm2 instructions
-get on port 80
-make dev still possible on 9099

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Pi Timer Settings</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        height: 100%;
+      }
+      html,
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 4vh;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        background-color: #333;
+        color: white;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .button {
+        border: 2px solid #999;
+        border-radius: 1em;
+        background-color: #555;
+        color: white;
+        fill: white;
+        stroke: white;
+        font-size: 0.75rem;
+        padding: 0.5em;
+        margin: 0.2em;
+        width: min-content;
+        height: min-content;
+        cursor: pointer;
+        user-select: none;
+        touch-action: manipulation;
+        white-space: nowrap;
+      }
+      .button.inactive {
+        color: #777 !important;
+        fill: #777 !important;
+        stroke: #777 !important;
+        border-color: #555;
+        background-color: #444;
+      }
+
+      /* Media query to change flex-direction based on screen width */
+      /* @media (min-width: 80rem) {
+        body {
+          flex-direction: row;
+        }
+      } */
+
+      #message-modal {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 1;
+        color: white;
+        justify-content: center;
+        align-items: center;
+      }
+      #message-modal.show {
+        display: flex;
+      }
+      #message-modal > div {
+        background-color: #333;
+        padding: 0.5em;
+        border: 1px solid white;
+        border-radius: 1em;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5em;
+      }
+      #message {
+        border: 2px solid gray;
+        width: 12rem;
+        height: 7.33rem;
+        background-color: black;
+        color: white;
+        cursor: text;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      input[type='number'] {
+        width: 2em;
+        font-size: 1rem;
+      }
+      .color-setting {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: stretch;
+        margin: 0.5em;
+      }
+    </style>
+  </head>
+  <body>
+    Time Font Size:<br />
+    <input
+      type="range"
+      min="1"
+      max="100"
+      value="50"
+      step="1"
+      class="slider"
+      id="time-size"
+    /><br />
+    Message Font Size:<br />
+    <input
+      type="range"
+      min="1"
+      max="100"
+      value="50"
+      step="1"
+      class="slider"
+      id="message-size"
+    /><br />
+    <iframe
+      src="display.html"
+      style="width: 96vw; height: 54vw; pointer-events: none"
+    ></iframe>
+    <div>
+      Text yellow at minute:
+      <div class="color-setting">
+        <input type="number" value="1" id="yellow" /><span
+          class="button"
+          id="yellow-disable"
+          >Disable</span
+        >
+        <br />
+      </div>
+    </div>
+    <div>
+      Text red at minute:
+      <div class="color-setting">
+        <input type="number" value="2" id="red" /><span
+          class="button"
+          id="red-disable"
+          >Disable</span
+        >
+        <br />
+      </div>
+    </div>
+    <div>
+      Flash at minute:
+      <div class="color-setting">
+        <input type="number" value="3" id="flash" /><span
+          class="button"
+          id="flash-disable"
+          >Disable</span
+        >
+        <br />
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: center; align-items: center">
+      <div
+        id="settings"
+        class="button"
+        onclick="window.location.href='index.html'"
+      >
+        Control
+      </div>
+    </div>
+  </body>
+  <script type="module" src="settings.js"></script>
+</html>

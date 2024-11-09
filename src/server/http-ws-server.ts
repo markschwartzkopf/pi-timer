@@ -14,11 +14,20 @@ import {
   getProps,
   getSettings,
   sendData,
+  setColor,
   setSendDataFunction,
   setSize,
   setStart,
 } from './data';
-//import {} from './data';
+
+let port = 80;
+const args = process.argv.slice(2);
+if (args && args.length > 0) {
+  const arg = args[0];
+  if (parseInt(arg).toString() === arg) {
+    port = parseInt(arg);
+  }
+}
 
 const mimeTypes = {
   '.html': 'text/html',
@@ -41,7 +50,6 @@ const mimeTypes = {
 };
 
 const STATIC_PATH = path.join(__dirname, '../../dist/browser/');
-const PORT = process.env.PORT || 9099;
 
 let time = getProps().startTime * 60;
 let timeAtStart = time;
@@ -77,8 +85,8 @@ const httpServer = http
         }
       });
   })
-  .listen(PORT, () => {
-    console.log(`Http server started on port ${PORT}`);
+  .listen(port, () => {
+    console.log(`Http server started on port ${port}`);
 
     const connections: WebSocket[] = [];
 
@@ -113,7 +121,7 @@ const httpServer = http
         settings: getSettings(),
         state: state,
         text: clientText(),
-        ipAddress: getLocalIP()
+        ipAddress: getLocalIP(),
       };
       ws.send(JSON.stringify(msg));
 
@@ -152,12 +160,15 @@ const httpServer = http
               case 'messageSizeMinus':
                 setSize('messageSize', 'minus');
                 break;
-                case 'sendMessage':
-                  {
-                    message = { message: msg.message, state: msg.flashing ? 'flashing' : 'normal' };
-                    sendData('text');
-                  }
-                  break;
+              case 'sendMessage':
+                {
+                  message = {
+                    message: msg.message,
+                    state: msg.flashing ? 'flashing' : 'normal',
+                  };
+                  sendData('text');
+                }
+                break;
               case 'start':
                 {
                   if (state === 'finished') {
@@ -208,6 +219,33 @@ const httpServer = http
                   state = 'finished';
                   sendData('text');
                   sendData('state');
+                }
+                break;
+              case 'setSetting':
+                {
+                  console.log('Setting setting: ' + msg.setting);
+                  switch (msg.setting) {
+                    case 'timeSize':
+                      if (msg.value != null) {
+                        setSize('timeSize', msg.value);
+                      }
+                      break;
+                    case 'messageSize':
+                      if (msg.value != null) {
+                        setSize('messageSize', msg.value);
+                      }
+                      break;
+                    case 'yellow':
+
+                      setColor('yellow', msg.value);
+                      break;
+                    case 'red':
+                      setColor('red', msg.value);
+                      break;
+                    case 'flash':
+                      setColor('flash', msg.value);
+                      break;
+                  }
                 }
                 break;
               default:
@@ -294,16 +332,14 @@ function clientText(): ClientText {
   return rtn;
 }
 
-
-
 function getLocalIP() {
-    const interfaces = os.networkInterfaces();
-    for (const name of Object.keys(interfaces)) {
-        for (const iface of interfaces[name]!) {
-            if (iface.family === 'IPv4' && !iface.internal) {
-                return iface.address;
-            }
-        }
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]!) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
     }
-    return 'No IP address found'; // Fallback to localhost if no external IP is found
+  }
+  return 'No IP address found'; // Fallback to localhost if no external IP is found
 }

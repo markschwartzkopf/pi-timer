@@ -247,13 +247,14 @@
             height="1.5em"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <polygon points="0,2 2,1 0,0" stroke="none"/>
+            <polygon points="0,2 2,1 0,0" stroke="none" />
           </svg>
         </div>
         <div id="pause" class="inactive">
           <svg
             viewBox="0 0 2 2"
             height="1.5em"
+            stroke="none"
             xmlns="http://www.w3.org/2000/svg"
           >
             <rect x="0.2" y="0" width="0.6" height="2" />
@@ -292,6 +293,15 @@
       src="display.html"
       style="width: 96vw; height: 54vw; pointer-events: none"
     ></iframe>
+    <div style="display: flex; justify-content: center; align-items: center">
+      <div
+        id="settings"
+        class="button"
+        onclick="window.location.href='settings.html'"
+      >
+        Settings
+      </div>
+    </div>
   </body>
   <script type="module" src="index.js"></script>
 </html>

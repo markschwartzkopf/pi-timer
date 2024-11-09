@@ -4,7 +4,7 @@
   "description": "Software to remotely control a Pi-based remote timer or countdown display",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node index.js 9099",
 		"watch": "npm-run-all -p watch:*",
 		"watch:server": "node ./node_modules/typescript/bin/tsc -p ./src/server --diagnostics --watch",
 		"watch:browser": "node ./node_modules/typescript/bin/tsc -p ./src/browser --diagnostics --watch",

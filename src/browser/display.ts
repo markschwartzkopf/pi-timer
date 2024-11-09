@@ -19,6 +19,8 @@ const server_address = location.origin.replace(/^http/, 'ws');
 
 let cursorTimeout: NodeJS.Timeout | null = null;
 
+let currentText: 'time' | 'message' = 'time';
+
 function hideCursor() {
   document.body.style.cursor = 'none';
   document.body.parentElement!.style.cursor = 'none';
@@ -58,6 +60,11 @@ ws.onmessage = (msg) => {
       const parsedData = JSON.parse(msg.data) as ServerMessage;
       if (parsedData.settings) {
         settings = parsedData.settings;
+        if (currentText === 'time') {
+          timeDiv.style.fontSize = `${settings.timeSize}vh`;
+        } else {
+          timeDiv.style.fontSize = `${settings.messageSize}vh`;
+        }
       }
       if (parsedData.text) {
         updateScreen(parsedData.text);
@@ -87,8 +94,10 @@ let flashTimeout: NodeJS.Timeout | undefined;
 function updateScreen(text: ClientText) {
   timeDiv.innerHTML = text.message ? text.message : text.time;
   if (text.message) {
+    currentText = 'message';
     timeDiv.style.fontSize = `${settings.messageSize}vh`;
   } else {
+    currentText = 'time';
     timeDiv.style.fontSize = `${settings.timeSize}vh`;
   }
   if (text.state !== 'flashing' && flashTimeout) {

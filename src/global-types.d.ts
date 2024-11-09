@@ -64,6 +64,11 @@ export type ClientMessage =
       type: 'sendMessage';
       message: string;
       flashing: boolean;
+    }
+  | {
+      type: 'setSetting';
+      setting: keyof TimerSettings;
+      value: number | null;
     };
 
 /* | {
