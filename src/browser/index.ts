@@ -26,20 +26,21 @@ resetButton.onclick = () => {
 };
 const plusMinute = document.getElementById('plus-minute') as HTMLDivElement;
 plusMinute.onclick = () => {
-  sendMsg({ type: 'plusMinute' });
+  sendMsg({ type: 'modifyTime', change: 30 });
 };
 const minusMinute = document.getElementById('minus-minute') as HTMLDivElement;
 minusMinute.onclick = () => {
-  sendMsg({ type: 'minusMinute' });
+  sendMsg({ type: 'modifyTime', change: -30 });
 };
 const messageModal = document.getElementById('message-modal') as HTMLDivElement;
+const messagebox = document.getElementById('messagebox') as HTMLDivElement;
 const message = document.getElementById('message') as HTMLDivElement;
 let messageFlash = false;
 setInterval(() => {
   if (messageFlash) {
     const oldColor = message.style.color;
     message.style.color = oldColor === 'black' ? 'red' : 'black';
-    message.style.backgroundColor = oldColor === 'black' ? 'black' : 'red';
+    messagebox.style.backgroundColor = oldColor === 'black' ? 'black' : 'red';
   }
 }, 1000);
 const sizePlus = document.getElementById('size-plus') as HTMLDivElement;
@@ -58,7 +59,7 @@ flashing.onclick = () => {
   } else {
     flashing.classList.add('inactive');
     message.style.color = 'white';
-    message.style.backgroundColor = 'black';
+    messagebox.style.backgroundColor = 'black';
   }
 };
 const sendButton = document.getElementById('send') as HTMLDivElement;
@@ -93,7 +94,7 @@ summonOrBanishMessage.onclick = () => {
   sendButton.classList.add('inactive');
   message.innerHTML = '';
   message.style.color = 'white';
-  message.style.backgroundColor = 'black';
+  messagebox.style.backgroundColor = 'black';
   messageModal.classList.add('show');
   message.focus();
 };

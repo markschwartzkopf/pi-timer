@@ -49,10 +49,8 @@ export type ClientMessage =
       type: 'secondDown';
     }
   | {
-      type: 'plusMinute';
-    }
-  | {
-      type: 'minusMinute';
+      type: 'modifyTime';
+      change: number;
     }
   | {
       type: 'messageSizePlus';

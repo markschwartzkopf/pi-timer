@@ -196,19 +196,10 @@ const httpServer = http
                   sendData('text');
                 }
                 break;
-              case 'plusMinute':
+              case 'modifyTime':
                 if (state !== 'running' && state !== 'paused') return;
-                {
-                  time += 60;
-                  timeAtStart = time;
-                  startTime = Date.now();
-                  sendData('text');
-                }
-                break;
-              case 'minusMinute':
-                if (state !== 'running' && state !== 'paused') return;
-                if (time > 60) {
-                  time -= 60;
+                if (time > -msg.change) {
+                  time += msg.change;
                   timeAtStart = time;
                   startTime = Date.now();
                   sendData('text');

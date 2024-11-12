@@ -129,17 +129,28 @@
         flex-wrap: wrap;
         gap: 0.5em;
       }
-      #message {
+      #messagebox {
         border: 2px solid gray;
         width: 12rem;
         height: 7.33rem;
         background-color: black;
-        color: white;
+        padding: 0;
         cursor: text;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         overflow: hidden;
+        position: relative;
+      }
+      #message {
+        position: absolute;
+        color: white;
+        font-weight: bold;
+        text-align: center;
+        width: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      #message:focus {
+        border: none; /* Maintain the custom border on focus */
+        outline: none; /* Ensure no outline is shown on focus */
       }
     </style>
   </head>
@@ -152,7 +163,9 @@
         <div id="send" class="button inactive">send</div>
         <div id="size-plus" class="button">size+</div>
         <div id="size-minus" class="button">size-</div>
-        <div id="message" contenteditable="true"></div>
+        <div id="messagebox">
+          <div id="message" contenteditable="true"></div>
+        </div>
       </div>
     </div>
     <div id="timer-start">
@@ -282,8 +295,8 @@
         </div>
       </div>
       <div>
-        <div id="plus-minute" class="inactive">+min</div>
-        <div id="minus-minute" class="inactive">−min</div>
+        <div id="plus-minute" class="inactive">+:30</div>
+        <div id="minus-minute" class="inactive">−:30</div>
       </div>
       <div>
         <div id="summon-message-modal">Send Message</div>
