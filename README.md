@@ -28,7 +28,7 @@ A project for controlling a timer screen with from a Raspberry Pi, for comedy cl
     cd pi-timer
     npm install
     npm run build
-    sudo setcap 'cap_net_bind_service=+ep' /usr/bin/node
+    sudo setcap 'cap_net_bind_service=+ep' $(which node)
     ```
 - Install pm2:
   - ```
