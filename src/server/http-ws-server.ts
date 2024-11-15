@@ -148,6 +148,9 @@ const httpServer = http
               case 'minuteDown':
                 setStart('minutes', 'down');
                 break;
+              case 'setMinutes':
+                setStart('minutes', msg.minutes);
+                break;
               case 'secondUp':
                 setStart('seconds', 'up');
                 break;

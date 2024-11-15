@@ -82,12 +82,24 @@ export function initializeData() {
 
 export function setStart(
   unit: 'minutes' | 'seconds',
-  direction: 'up' | 'down'
+  modification: 'up' | 'down' | number
 ) {
+  let increment = 0;
   if (unit === 'minutes') {
-    props.startTime += direction === 'up' ? 1 : -1;
+    increment = modification === 'up' ? 1 : -1;
   } else {
-    props.startTime += direction === 'up' ? 0.25 : -0.25;
+    increment = modification === 'up' ? 0.25 : -0.25;
+  }
+  if (typeof modification === 'number') {
+    const startMinutes = Math.floor(props.startTime);
+    const startSeconds = (props.startTime % 1) * 60;
+    if (unit === 'minutes') {
+      props.startTime = modification + startSeconds / 60;      
+    } else {
+      props.startTime = startMinutes + modification / 60;
+    }
+  } else {
+    props.startTime += increment;
   }
   fs.promises.writeFile('./data/props.json', JSON.stringify(props));
   sendData('props');

@@ -30,62 +30,77 @@ let settings: TimerSettings = {
   flash: 0,
 };
 
-const ws = new WebSocket(server_address);
-ws.binaryType = 'arraybuffer';
+let ws = new WebSocket(server_address);
 
-ws.onopen = () => {
-  console.log(`Connection to ${server_address} open`);
-};
-
-ws.onerror = (err) => {
-  blError('WebSocket error', { error: JSON.stringify(err) });
-};
-
-ws.onmessage = (msg) => {
-  if (typeof msg.data === 'string') {
-    try {
-      const parsedData = JSON.parse(msg.data) as ServerMessage;
-      if (parsedData.settings) {
-        settings = parsedData.settings;
-        if (parseInt(timeSizeRange.value) !== settings.timeSize)
-          timeSizeRange.value = settings.timeSize.toString();
-        if (parseInt(messageSizeRange.value) !== settings.messageSize)
-          messageSizeRange.value = settings.messageSize.toString();
-        if (settings.yellow !== null) yellowDisable.style.display = '';
-        if (parseFloat(yellowInput.value) !== settings.yellow) {
-          if (settings.yellow === null) {
-            yellowInput.value = '';
-            yellowDisable.style.display = 'none';
-          } else {
-            yellowInput.value = settings.yellow.toString();
-          }
-        }
-        if (settings.red !== null) redDisable.style.display = '';
-        if (parseFloat(redInput.value) !== settings.red) {
-          if (settings.red === null) {
-            redInput.value = '';
-            redDisable.style.display = 'none';
-          } else {
-            redInput.value = settings.red.toString();
-          }
-        }
-        if (settings.flash !== null) flashDisable.style.display = '';
-        if (parseFloat(flashInput.value) !== settings.flash) {
-          if (settings.flash === null) {
-            flashInput.value = '';
-            flashDisable.style.display = 'none';
-          } else {
-            flashInput.value = settings.flash.toString();
-          }
-        }
-      }
-    } catch (error) {
-      blError('Error parsing JSON data', { data: error });
-    }
-  } else {
-    blError('Received non-string data', { data: msg.data });
+function connectWebSocket() {
+  if (ws.readyState !== ws.CONNECTING) {
+    const oldWs = ws;
+    oldWs.close();
+    ws = new WebSocket(server_address);
   }
-};
+  ws.binaryType = 'arraybuffer';
+
+  ws.onopen = () => {
+    console.log(`Connection to ${server_address} open`);
+  };
+
+  ws.onerror = (err) => {
+    blError('WebSocket error', { error: JSON.stringify(err) });
+  };
+
+  ws.onmessage = (msg) => {
+    if (typeof msg.data === 'string') {
+      try {
+        const parsedData = JSON.parse(msg.data) as ServerMessage;
+        if (parsedData.settings) {
+          settings = parsedData.settings;
+          if (parseInt(timeSizeRange.value) !== settings.timeSize)
+            timeSizeRange.value = settings.timeSize.toString();
+          if (parseInt(messageSizeRange.value) !== settings.messageSize)
+            messageSizeRange.value = settings.messageSize.toString();
+          if (settings.yellow !== null) yellowDisable.style.display = '';
+          if (parseFloat(yellowInput.value) !== settings.yellow) {
+            if (settings.yellow === null) {
+              yellowInput.value = '';
+              yellowDisable.style.display = 'none';
+            } else {
+              yellowInput.value = settings.yellow.toString();
+            }
+          }
+          if (settings.red !== null) redDisable.style.display = '';
+          if (parseFloat(redInput.value) !== settings.red) {
+            if (settings.red === null) {
+              redInput.value = '';
+              redDisable.style.display = 'none';
+            } else {
+              redInput.value = settings.red.toString();
+            }
+          }
+          if (settings.flash !== null) flashDisable.style.display = '';
+          if (parseFloat(flashInput.value) !== settings.flash) {
+            if (settings.flash === null) {
+              flashInput.value = '';
+              flashDisable.style.display = 'none';
+            } else {
+              flashInput.value = settings.flash.toString();
+            }
+          }
+        }
+      } catch (error) {
+        blError('Error parsing JSON data', { data: error });
+      }
+    } else {
+      blError('Received non-string data', { data: msg.data });
+    }
+  };
+}
+connectWebSocket();
+setInterval(() => {
+  if (ws.readyState !== ws.OPEN) {
+    console.log('Reconnecting to WebSocket');
+    connectWebSocket();
+  }
+}, 1000);
 
 function sendMsg(msg: ClientMessage) {
   ws.send(JSON.stringify(msg));

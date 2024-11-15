@@ -43,42 +43,59 @@ document.addEventListener('mousemove', () => {
   document.getElementById('ip-address')!.style.display = 'unset';
 });
 
-const ws = new WebSocket(server_address);
-ws.binaryType = 'arraybuffer';
+let ws = new WebSocket(server_address);
 
-ws.onopen = () => {
-  console.log(`Connection to ${server_address} open`);
-};
-
-ws.onerror = (err) => {
-  blError('WebSocket error', { error: JSON.stringify(err) });
-};
-
-ws.onmessage = (msg) => {
-  if (typeof msg.data === 'string') {
-    try {
-      const parsedData = JSON.parse(msg.data) as ServerMessage;
-      if (parsedData.settings) {
-        settings = parsedData.settings;
-        if (currentText === 'time') {
-          timeDiv.style.fontSize = `${settings.timeSize}vh`;
-        } else {
-          timeDiv.style.fontSize = `${settings.messageSize}vh`;
-        }
-      }
-      if (parsedData.text) {
-        updateScreen(parsedData.text);
-      }
-      if (parsedData.ipAddress) {
-        document.getElementById('ip-address')!.innerHTML = parsedData.ipAddress;
-      }
-    } catch (error) {
-      blError('Error parsing JSON data', { data: error });
-    }
-  } else {
-    blError('Received non-string data', { data: msg.data });
+function connectWebSocket() {
+  if (ws.readyState !== ws.CONNECTING) {
+    const oldWs = ws;
+    oldWs.close();
+    ws = new WebSocket(server_address);
   }
-};
+  ws.binaryType = 'arraybuffer';
+
+  ws.onopen = () => {
+    console.log(`Connection to ${server_address} open`);
+  };
+
+  ws.onerror = (err) => {
+    blError('WebSocket error', { error: JSON.stringify(err) });
+  };
+
+  ws.onmessage = (msg) => {
+    if (typeof msg.data === 'string') {
+      try {
+        const parsedData = JSON.parse(msg.data) as ServerMessage;
+        if (parsedData.settings) {
+          settings = parsedData.settings;
+          if (currentText === 'time') {
+            timeDiv.style.fontSize = `${settings.timeSize}vh`;
+          } else {
+            timeDiv.style.fontSize = `${settings.messageSize}vh`;
+          }
+        }
+        if (parsedData.text) {
+          updateScreen(parsedData.text);
+        }
+        if (parsedData.ipAddress) {
+          document.getElementById('ip-address')!.innerHTML =
+            parsedData.ipAddress;
+        }
+      } catch (error) {
+        blError('Error parsing JSON data', { data: error });
+      }
+    } else {
+      blError('Received non-string data', { data: msg.data });
+    }
+  };
+}
+connectWebSocket();
+
+setInterval(() => {
+  if (ws.readyState !== ws.OPEN) {
+    console.log('Reconnecting to WebSocket');
+    connectWebSocket();
+  }
+}, 1000);
 
 /* function sendMsg(msg: clientMessage) {
 	ws.send(JSON.stringify(msg));

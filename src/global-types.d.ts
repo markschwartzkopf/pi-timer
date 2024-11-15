@@ -43,6 +43,10 @@ export type ClientMessage =
       type: 'minuteDown';
     }
   | {
+      type: 'setMinutes';
+      minutes: number;
+    }
+  | {
       type: 'secondUp';
     }
   | {

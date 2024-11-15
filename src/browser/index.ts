@@ -1,11 +1,61 @@
 import { ClientMessage, ErrorData, ServerMessage } from '../global-types';
 
+const commToIOSDiv = document.getElementById('timer-start')!.firstElementChild as HTMLDivElement;
 document.getElementById('minute-up')!.onclick = () => {
   sendMsg({ type: 'minuteUp' });
 };
 document.getElementById('minute-down')!.onclick = () => {
   sendMsg({ type: 'minuteDown' });
 };
+let lastStartMinuteClick = 0;
+const startMinutesTd = document.getElementById(
+  'start-minutes'
+) as HTMLTableCellElement;
+startMinutesTd.style.touchAction = 'manipulation';
+startMinutesTd.ontouchstart = (e) => {
+  if (e.touches.length > 1) {
+    e.preventDefault();
+  }
+};
+let oldMinutes = '00';
+function editStartMinutes() {
+  oldMinutes = startMinutesTd.innerHTML;
+  startMinutesTd.contentEditable = 'true';
+  startMinutesTd.focus();
+  startMinutesTd.onblur = () => {
+    const newMinutes = startMinutesTd.innerHTML;
+    const newMinutesNumber = parseInt(newMinutes);
+    if (newMinutesNumber && newMinutesNumber > 0 && newMinutes !== oldMinutes) {
+      sendMsg({ type: 'setMinutes', minutes: newMinutesNumber });
+    } else {
+      startMinutesTd.innerHTML = oldMinutes;
+    }
+    startMinutesTd.contentEditable = 'false';
+  };
+  const range = document.createRange();
+  range.selectNodeContents(startMinutesTd);
+  const selection = window.getSelection();
+  selection?.removeAllRanges();
+  selection?.addRange(range);
+}
+startMinutesTd.ontouchend = (e) => {  
+  const now = Date.now();
+  if (now - lastStartMinuteClick < 300) {
+    editStartMinutes();
+  }
+  lastStartMinuteClick = now;
+  e.preventDefault();
+};
+startMinutesTd.onkeydown = (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    startMinutesTd.blur();
+  }
+};
+startMinutesTd.ondblclick = () => {
+  editStartMinutes();
+};
+
 document.getElementById('second-up')!.onclick = () => {
   sendMsg({ type: 'secondUp' });
 };
@@ -110,78 +160,94 @@ let startMinutes = '00';
 let startSeconds = '00';
 let currentTime = '00:00';
 
-const ws = new WebSocket(server_address);
-ws.binaryType = 'arraybuffer';
+let ws = new WebSocket(server_address);
 
-ws.onopen = () => {
-  console.log(`Connection to ${server_address} open`);
-};
-
-ws.onerror = (err) => {
-  blError('WebSocket error', { error: JSON.stringify(err) });
-};
-
-ws.onmessage = (msg) => {
-  if (typeof msg.data === 'string') {
-    try {
-      const parsedData = JSON.parse(msg.data) as ServerMessage;
-      if (parsedData.props) {
-        updateStart(parsedData.props.startTime);
-      }
-      if (parsedData.text) {
-        updateTime(parsedData.text.time);
-        const message = parsedData.text.message;
-        messageActive = !!message;
-        if (messageActive) {
-          summonOrBanishMessage.innerHTML = 'Remove Message';
-        } else {
-          summonOrBanishMessage.innerHTML = 'Send Message';
-        }
-      }
-      if (parsedData.settings) {
-        document.getElementById(
-          'message'
-        )!.style.fontSize = `calc((${parsedData.settings.messageSize} * 7.33rem)/100)`;
-      }
-      if (parsedData.state) {
-        switch (parsedData.state) {
-          case 'running':
-            startButton.classList.add('inactive');
-            pauseButton.classList.remove('inactive');
-            resetButton.classList.remove('inactive');
-            plusMinute.classList.remove('inactive');
-            minusMinute.classList.remove('inactive');
-            break;
-          case 'paused':
-            startButton.classList.remove('inactive');
-            pauseButton.classList.add('inactive');
-            resetButton.classList.remove('inactive');
-            plusMinute.classList.remove('inactive');
-            minusMinute.classList.remove('inactive');
-            break;
-          case 'finished':
-            startButton.classList.remove('inactive');
-            pauseButton.classList.add('inactive');
-            resetButton.classList.remove('inactive');
-            plusMinute.classList.add('inactive');
-            minusMinute.classList.add('inactive');
-            break;
-          case 'ready':
-            startButton.classList.remove('inactive');
-            pauseButton.classList.add('inactive');
-            resetButton.classList.add('inactive');
-            plusMinute.classList.add('inactive');
-            minusMinute.classList.add('inactive');
-            break;
-        }
-      }
-    } catch (error) {
-      blError('Error parsing JSON data', { data: error });
-    }
-  } else {
-    blError('Received non-string data', { data: msg.data });
+function connectWebSocket() {
+  if (ws.readyState !== ws.CONNECTING) {
+    const oldWs = ws;
+    oldWs.close();
+    ws = new WebSocket(server_address);
   }
-};
+  ws.binaryType = 'arraybuffer';
+
+  ws.onopen = () => {
+    console.log(`Connection to ${server_address} open`);
+  };
+
+  ws.onerror = (err) => {
+    blError('WebSocket error', { error: JSON.stringify(err) });
+  };
+
+  ws.onmessage = (msg) => {
+    if (typeof msg.data === 'string') {
+      try {
+        const parsedData = JSON.parse(msg.data) as ServerMessage;
+        if (parsedData.props) {
+          updateStart(parsedData.props.startTime);
+        }
+        if (parsedData.text) {
+          updateTime(parsedData.text.time);
+          const message = parsedData.text.message;
+          messageActive = !!message;
+          if (messageActive) {
+            summonOrBanishMessage.innerHTML = 'Remove Message';
+          } else {
+            summonOrBanishMessage.innerHTML = 'Send Message';
+          }
+        }
+        if (parsedData.settings) {
+          document.getElementById(
+            'message'
+          )!.style.fontSize = `calc((${parsedData.settings.messageSize} * 7.33rem)/100)`;
+        }
+        if (parsedData.state) {
+          switch (parsedData.state) {
+            case 'running':
+              startButton.classList.add('inactive');
+              pauseButton.classList.remove('inactive');
+              resetButton.classList.remove('inactive');
+              plusMinute.classList.remove('inactive');
+              minusMinute.classList.remove('inactive');
+              break;
+            case 'paused':
+              startButton.classList.remove('inactive');
+              pauseButton.classList.add('inactive');
+              resetButton.classList.remove('inactive');
+              plusMinute.classList.remove('inactive');
+              minusMinute.classList.remove('inactive');
+              break;
+            case 'finished':
+              startButton.classList.remove('inactive');
+              pauseButton.classList.add('inactive');
+              resetButton.classList.remove('inactive');
+              plusMinute.classList.add('inactive');
+              minusMinute.classList.add('inactive');
+              break;
+            case 'ready':
+              startButton.classList.remove('inactive');
+              pauseButton.classList.add('inactive');
+              resetButton.classList.add('inactive');
+              plusMinute.classList.add('inactive');
+              minusMinute.classList.add('inactive');
+              break;
+          }
+        }
+      } catch (error) {
+        blError('Error parsing JSON data', { data: error });
+      }
+    } else {
+      blError('Received non-string data', { data: msg.data });
+    }
+  };
+}
+connectWebSocket();
+
+setInterval(() => {
+  if (ws.readyState !== ws.OPEN) {
+    console.log('Reconnecting to WebSocket');
+    connectWebSocket();
+  }
+}, 1000);
 
 function sendMsg(msg: ClientMessage) {
   ws.send(JSON.stringify(msg));
@@ -209,7 +275,7 @@ function updateTime(time: string) {
 function updateStart(minutesIn: number) {
   startSeconds = ((minutesIn % 1) * 60).toString().padStart(2, '0');
   startMinutes = Math.floor(minutesIn).toString().padStart(2, '0');
-  document.getElementById('start-minutes')!.innerHTML = startMinutes;
+  startMinutesTd.innerHTML = startMinutes;
   document.getElementById('start-seconds')!.innerHTML = startSeconds;
   if (!currentTime) updateTime('');
 }
