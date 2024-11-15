@@ -21,6 +21,11 @@ const flashInput = document.getElementById('flash') as HTMLInputElement;
 const flashDisable = document.getElementById(
   'flash-disable'
 ) as HTMLInputElement;
+const rebootButton = document.getElementById('reboot') as HTMLButtonElement;
+rebootButton.onclick = () => {
+  if (confirm('Are you sure you want to reboot the timer Pi?'))
+    sendMsg({ type: 'reboot' });
+};
 
 let settings: TimerSettings = {
   timeSize: 50,
@@ -85,6 +90,10 @@ function connectWebSocket() {
               flashInput.value = settings.flash.toString();
             }
           }
+        }
+        if (parsedData.canReboot) {
+          console.log('Reboot button enabled');
+          rebootButton.style.display = '';
         }
       } catch (error) {
         blError('Error parsing JSON data', { data: error });

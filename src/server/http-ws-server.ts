@@ -19,6 +19,22 @@ import {
   setSize,
   setStart,
 } from './data';
+import { exec } from 'child_process';
+
+let canReboot = false;
+if (os.platform() === 'linux') {
+  exec('command -v reboot', (error, stdout, stderr) => {
+    if (!error && !stderr && stdout) {
+      console.log('reboot available, checking permission');
+      exec('sudo -n reboot --help', (error, stdout, stderr) => {
+        if (!error && !stderr && stdout) {
+          console.log('program has reboot permission');
+          canReboot = true;
+        } else console.log('program does not have reboot permission');
+      });
+    } else console.log('reboot not available');
+  });
+} else console.log('Not on linux, not checking for reboot permission');
 
 let port = 80;
 const args = process.argv.slice(2);
@@ -122,6 +138,7 @@ const httpServer = http
         state: state,
         text: clientText(),
         ipAddress: getLocalIP(),
+        canReboot: canReboot,
       };
       ws.send(JSON.stringify(msg));
 
@@ -230,7 +247,6 @@ const httpServer = http
                       }
                       break;
                     case 'yellow':
-
                       setColor('yellow', msg.value);
                       break;
                     case 'red':
@@ -240,6 +256,12 @@ const httpServer = http
                       setColor('flash', msg.value);
                       break;
                   }
+                }
+                break;
+              case 'reboot':
+                if (canReboot) {
+                  console.log('Rebooting');
+                  exec('sudo reboot');
                 }
                 break;
               default:

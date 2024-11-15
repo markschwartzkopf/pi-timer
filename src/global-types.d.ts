@@ -7,6 +7,7 @@ export type ServerMessage = {
   state?: TimerState;
   settings?: TimerSettings;
   ipAddress?: string;
+  canReboot?: boolean;
   message?: { message: string; flashing: boolean };
 };
 export type TimerProps = {
@@ -71,6 +72,9 @@ export type ClientMessage =
       type: 'setSetting';
       setting: keyof TimerSettings;
       value: number | null;
+    }
+  | {
+      type: 'reboot';
     };
 
 /* | {
