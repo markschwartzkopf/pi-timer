@@ -20,6 +20,7 @@ import {
   setStart,
 } from './data';
 import { exec } from 'child_process';
+import { sendStateToClients } from './osc';
 
 let canReboot = false;
 if (os.platform() === 'linux') {
@@ -71,6 +72,7 @@ let time = getProps().startTime * 60;
 let timeAtStart = time;
 let startTime = Date.now();
 let state: TimerState = 'ready';
+let lastSentState: TimerState = 'ready';
 let message: Omit<ClientText, 'time'> = { message: '', state: 'normal' };
 
 const httpServer = http
@@ -190,31 +192,13 @@ const httpServer = http
                 }
                 break;
               case 'start':
-                {
-                  if (state === 'finished') {
-                    time = getProps().startTime * 60;
-                  }
-                  timeAtStart = time;
-                  startTime = Date.now();
-                  state = 'running';
-                  sendData('state');
-                }
+                start();
                 break;
               case 'pause':
-                {
-                  state = 'paused';
-                  sendData('state');
-                }
+                pause();
                 break;
               case 'reset':
-                {
-                  time = getProps().startTime * 60;
-                  timeAtStart = time;
-                  startTime = Date.now();
-                  state = 'ready';
-                  sendData('state');
-                  sendData('text');
-                }
+                reset();
                 break;
               case 'modifyTime':
                 if (state !== 'running' && state !== 'paused') return;
@@ -295,6 +279,8 @@ setInterval(() => {
   if (state === 'running') {
     const newTime = Math.round(timeAtStart - (Date.now() - startTime) / 1000);
     if (newTime !== time) {
+      sendStateToClients(newTime);
+      lastSentState = 'running';
       time = newTime;
       if (time <= 0) {
         time = 0;
@@ -302,6 +288,11 @@ setInterval(() => {
         sendData('state');
       }
       sendData('text');
+    }
+  } else {
+    if (state !== lastSentState) {
+      sendStateToClients(state);
+      lastSentState = state;
     }
   }
 }, 100);
@@ -358,4 +349,32 @@ function getLocalIP() {
     }
   }
   return 'No IP address found'; // Fallback to localhost if no external IP is found
+}
+
+export function getState() {
+  return state;
+}
+
+export function start() {
+  if (state === 'finished') {
+    time = getProps().startTime * 60;
+  }
+  timeAtStart = time;
+  startTime = Date.now();
+  state = 'running';
+  sendData('state');
+}
+
+export function pause() {
+  state = 'paused';
+  sendData('state');
+}
+
+export function reset() {
+  time = getProps().startTime * 60;
+  timeAtStart = time;
+  startTime = Date.now();
+  state = 'ready';
+  sendData('state');
+  sendData('text');
 }

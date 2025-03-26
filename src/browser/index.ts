@@ -1,6 +1,5 @@
 import { ClientMessage, ErrorData, ServerMessage } from '../global-types';
 
-const commToIOSDiv = document.getElementById('timer-start')!.firstElementChild as HTMLDivElement;
 document.getElementById('minute-up')!.onclick = () => {
   sendMsg({ type: 'minuteUp' });
 };

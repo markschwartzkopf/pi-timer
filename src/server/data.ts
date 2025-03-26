@@ -81,24 +81,26 @@ export function initializeData() {
 }
 
 export function setStart(
-  unit: 'minutes' | 'seconds',
+  unit: 'minutes' | 'seconds' | 'absoluteMinutes',
   modification: 'up' | 'down' | number
 ) {
-  let increment = 0;
-  if (unit === 'minutes') {
-    increment = modification === 'up' ? 1 : -1;
-  } else {
-    increment = modification === 'up' ? 0.25 : -0.25;
-  }
   if (typeof modification === 'number') {
     const startMinutes = Math.floor(props.startTime);
     const startSeconds = (props.startTime % 1) * 60;
     if (unit === 'minutes') {
-      props.startTime = modification + startSeconds / 60;      
-    } else {
+      props.startTime = modification + startSeconds / 60;
+    } else if (unit === 'seconds') {
       props.startTime = startMinutes + modification / 60;
+    } else if (unit === 'absoluteMinutes') {
+      props.startTime = modification;
     }
   } else {
+    let increment = 0;
+    if (unit === 'minutes') {
+      increment = modification === 'up' ? 1 : -1;
+    } else {
+      increment = modification === 'up' ? 0.25 : -0.25;
+    }
     props.startTime += increment;
   }
   fs.promises.writeFile('./data/props.json', JSON.stringify(props));
@@ -116,16 +118,23 @@ export function setSize(
   } else {
     settings[type] = newSize;
   }
-	fs.promises.writeFile('./data/settings.json', JSON.stringify(settings)).catch((err) => {
-		blLog.error('Error writing settings file', err);
-	});
-	sendData('settings');
+  fs.promises
+    .writeFile('./data/settings.json', JSON.stringify(settings))
+    .catch((err) => {
+      blLog.error('Error writing settings file', err);
+    });
+  sendData('settings');
 }
 
-export function setColor(color: 'yellow' | 'red' | 'flash', newColor: number | null) {
-	settings[color] = newColor;
-	fs.promises.writeFile('./data/settings.json', JSON.stringify(settings)).catch((err) => {
-		blLog.error('Error writing settings file', err);
-	});
-	sendData('settings');
+export function setColor(
+  color: 'yellow' | 'red' | 'flash',
+  newColor: number | null
+) {
+  settings[color] = newColor;
+  fs.promises
+    .writeFile('./data/settings.json', JSON.stringify(settings))
+    .catch((err) => {
+      blLog.error('Error writing settings file', err);
+    });
+  sendData('settings');
 }
