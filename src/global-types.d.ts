@@ -8,7 +8,7 @@ export type ServerMessage = {
   settings?: TimerSettings;
   ipAddress?: string;
   canReboot?: boolean;
-  message?: { message: string; flashing: boolean };
+  message?: { message: string; warning: boolean };
 };
 export type TimerProps = {
   startTime: number;
@@ -19,12 +19,13 @@ export type TimerSettings = {
   messageSize: number;
   yellow: number | null;
   red: number | null;
-  flash: number | null;
+  warning: number | null;
+  flash: boolean;
 };
 export type ClientText = {
   time: string;
   message?: string;
-  state: 'normal' | 'yellow' | 'red' | 'flashing';
+  state: 'normal' | 'yellow' | 'red' | 'warning';
 };
 
 export type ClientMessage =
@@ -66,7 +67,7 @@ export type ClientMessage =
   | {
       type: 'sendMessage';
       message: string;
-      flashing: boolean;
+      warning: boolean;
     }
   | {
       type: 'setSetting';

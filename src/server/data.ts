@@ -15,7 +15,8 @@ let settings: TimerSettings = {
   messageSize: 30,
   yellow: 2,
   red: 1,
-  flash: 0,
+  warning: 0,
+  flash: false,
 };
 export function getSettings() {
   return settings;
@@ -127,10 +128,12 @@ export function setSize(
 }
 
 export function setColor(
-  color: 'yellow' | 'red' | 'flash',
+  color: 'yellow' | 'red' | 'warning' | 'flash',
   newColor: number | null
 ) {
-  settings[color] = newColor;
+  if (color === 'flash') {
+    settings.flash = !!newColor;
+  } else settings[color] = newColor;
   fs.promises
     .writeFile('./data/settings.json', JSON.stringify(settings))
     .catch((err) => {

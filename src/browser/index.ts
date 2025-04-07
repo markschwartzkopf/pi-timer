@@ -100,13 +100,13 @@ sizePlus.onclick = () => {
 sizeMinus.onclick = () => {
   sendMsg({ type: 'messageSizeMinus' });
 };
-const flashing = document.getElementById('flashing') as HTMLDivElement;
-flashing.onclick = () => {
+const warning = document.getElementById('warning') as HTMLDivElement;
+warning.onclick = () => {
   messageFlash = !messageFlash;
   if (messageFlash) {
-    flashing.classList.remove('inactive');
+    warning.classList.remove('inactive');
   } else {
-    flashing.classList.add('inactive');
+    warning.classList.add('inactive');
     message.style.color = 'white';
     messagebox.style.backgroundColor = 'black';
   }
@@ -117,7 +117,7 @@ sendButton.onclick = () => {
   sendMsg({
     type: 'sendMessage',
     message: message.innerHTML,
-    flashing: messageFlash,
+    warning: messageFlash,
   });
   messageModal.classList.remove('show');
 };
@@ -134,12 +134,12 @@ const summonOrBanishMessage = document.getElementById(
 ) as HTMLDivElement;
 summonOrBanishMessage.onclick = () => {
   if (messageActive) {
-    sendMsg({ type: 'sendMessage', message: '', flashing: false });
+    sendMsg({ type: 'sendMessage', message: '', warning: false });
     return;
   }
   //reset message modal
   messageFlash = false;
-  flashing.classList.add('inactive');
+  warning.classList.add('inactive');
   sendButton.classList.add('inactive');
   message.innerHTML = '';
   message.style.color = 'white';

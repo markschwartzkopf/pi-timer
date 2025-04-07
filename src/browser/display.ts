@@ -11,7 +11,8 @@ let settings: TimerSettings = {
   messageSize: 30,
   yellow: 2,
   red: 1,
-  flash: 0,
+  warning: 0,
+  flash: false,
 };
 const timeDiv = document.getElementById('time') as HTMLDivElement;
 
@@ -117,7 +118,7 @@ function updateScreen(text: ClientText) {
     currentText = 'time';
     timeDiv.style.fontSize = `${settings.timeSize}vh`;
   }
-  if (text.state !== 'flashing' && flashTimeout) {
+  if (text.state !== 'warning' && flashTimeout) {
     clearTimeout(flashTimeout);
     flashTimeout = undefined;
     document.body.style.backgroundColor = 'black';
@@ -132,16 +133,20 @@ function updateScreen(text: ClientText) {
     case 'red':
       timeDiv.style.color = 'red';
       break;
-    case 'flashing':
+    case 'warning':
       if (!flashTimeout) {
         flashTimeout = setInterval(() => {
           const oldColor = timeDiv.style.color;
-          timeDiv.style.color = oldColor === 'black' ? 'red' : 'black';
-          document.body.style.backgroundColor =
-            oldColor === 'black' ? 'black' : 'red';
+          if (settings.flash) {
+            timeDiv.style.color = oldColor === 'black' ? 'red' : 'black';
+            document.body.style.backgroundColor =
+              oldColor === 'black' ? 'black' : 'red';
+          } else {
+            timeDiv.style.color = 'black';
+            document.body.style.backgroundColor = 'red';
+          }
         }, 1000);
       }
-
       break;
   }
 }

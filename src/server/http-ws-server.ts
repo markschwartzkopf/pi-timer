@@ -186,7 +186,7 @@ const httpServer = http
                 {
                   message = {
                     message: msg.message,
-                    state: msg.flashing ? 'flashing' : 'normal',
+                    state: msg.warning ? 'warning' : 'normal',
                   };
                   sendData('text');
                 }
@@ -235,6 +235,9 @@ const httpServer = http
                       break;
                     case 'red':
                       setColor('red', msg.value);
+                      break;
+                    case 'warning':
+                      setColor('warning', msg.value);
                       break;
                     case 'flash':
                       setColor('flash', msg.value);
@@ -326,10 +329,10 @@ function clientText(): ClientText {
   }
   if (
     state != 'ready' &&
-    settings.flash != null &&
-    preciseMinutes <= settings.flash
+    settings.warning != null &&
+    preciseMinutes <= settings.warning
   ) {
-    textState = 'flashing';
+    textState = 'warning';
   }
   const rtn: ClientText = { time: timeString, state: textState };
   if (message.message) {

@@ -17,10 +17,12 @@ const yellowDisable = document.getElementById(
 ) as HTMLInputElement;
 const redInput = document.getElementById('red') as HTMLInputElement;
 const redDisable = document.getElementById('red-disable') as HTMLInputElement;
-const flashInput = document.getElementById('flash') as HTMLInputElement;
-const flashDisable = document.getElementById(
-  'flash-disable'
+const warningInput = document.getElementById('warning') as HTMLInputElement;
+const warningDisable = document.getElementById(
+  'warning-disable'
 ) as HTMLInputElement;
+const flashToggle = document.getElementById('toggle-flash') as HTMLSpanElement;
+const flash = document.getElementById('flash') as HTMLSpanElement;
 const rebootButton = document.getElementById('reboot') as HTMLButtonElement;
 rebootButton.onclick = () => {
   if (confirm('Are you sure you want to reboot the timer Pi?'))
@@ -32,7 +34,8 @@ let settings: TimerSettings = {
   messageSize: 30,
   yellow: 2,
   red: 1,
-  flash: 0,
+  warning: 0,
+  flash: false,
 };
 
 let ws = new WebSocket(server_address);
@@ -81,14 +84,19 @@ function connectWebSocket() {
               redInput.value = settings.red.toString();
             }
           }
-          if (settings.flash !== null) flashDisable.style.display = '';
-          if (parseFloat(flashInput.value) !== settings.flash) {
-            if (settings.flash === null) {
-              flashInput.value = '';
-              flashDisable.style.display = 'none';
+          if (settings.warning !== null) warningDisable.style.display = '';
+          if (parseFloat(warningInput.value) !== settings.warning) {
+            if (settings.warning === null) {
+              warningInput.value = '';
+              warningDisable.style.display = 'none';
             } else {
-              flashInput.value = settings.flash.toString();
+              warningInput.value = settings.warning.toString();
             }
+          }
+          if (settings.flash) {
+            flash.innerHTML = 'Yes';
+          } else {
+            flash.innerHTML = 'No';
           }
         }
         if (parsedData.canReboot) {
@@ -177,17 +185,25 @@ redDisable.onclick = () => {
   sendMsg({ type: 'setSetting', setting: 'red', value: null });
 };
 
-flashInput.onchange = () => {
-  let newValue = parseFloat(flashInput.value);
+warningInput.onchange = () => {
+  let newValue = parseFloat(warningInput.value);
   if (newValue < 0) {
     newValue = 0;
-    flashInput.value = '0';
+    warningInput.value = '0';
   }
   if (!isNaN(newValue)) {
-    sendMsg({ type: 'setSetting', setting: 'flash', value: newValue });
+    sendMsg({ type: 'setSetting', setting: 'warning', value: newValue });
   }
 };
 
-flashDisable.onclick = () => {
-  sendMsg({ type: 'setSetting', setting: 'flash', value: null });
+warningDisable.onclick = () => {
+  sendMsg({ type: 'setSetting', setting: 'warning', value: null });
+};
+
+flashToggle.onclick = () => {
+  sendMsg({
+    type: 'setSetting',
+    setting: 'flash',
+    value: settings.flash ? 0 : 1,
+  });
 };
