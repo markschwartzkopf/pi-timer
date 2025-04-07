@@ -1,5 +1,7 @@
 import { ClientMessage, ErrorData, ServerMessage } from '../global-types';
 
+let flash=true;
+
 document.getElementById('minute-up')!.onclick = () => {
   sendMsg({ type: 'minuteUp' });
 };
@@ -87,9 +89,14 @@ const message = document.getElementById('message') as HTMLDivElement;
 let messageFlash = false;
 setInterval(() => {
   if (messageFlash) {
-    const oldColor = message.style.color;
-    message.style.color = oldColor === 'black' ? 'red' : 'black';
-    messagebox.style.backgroundColor = oldColor === 'black' ? 'black' : 'red';
+    if (flash) {
+      const oldColor = message.style.color;
+      message.style.color = oldColor === 'black' ? 'red' : 'black';
+      messagebox.style.backgroundColor = oldColor === 'black' ? 'black' : 'red';
+    } else {
+      message.style.color = 'black';
+      messagebox.style.backgroundColor = 'red';
+    }
   }
 }, 1000);
 const sizePlus = document.getElementById('size-plus') as HTMLDivElement;
@@ -198,6 +205,7 @@ function connectWebSocket() {
           document.getElementById(
             'message'
           )!.style.fontSize = `calc((${parsedData.settings.messageSize} * 7.33rem)/100)`;
+          flash = parsedData.settings.flash;
         }
         if (parsedData.state) {
           switch (parsedData.state) {
